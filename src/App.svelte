@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Router, { location, replace } from 'svelte-spa-router';
-	replace('/load')
+	replace('/load/0')
 	import Home from './lib/Home.svelte';
 	import Loaded from './lib/Loaded.svelte';
 	import Loading from './lib/Loading.svelte';
@@ -11,7 +11,7 @@
 		<Router routes={{
 			'/': Home,
 			'/height': Loaded,
-			'/load': Loading
+			'/load/:type': Loading
 		}} />
 	</div>
 </div>

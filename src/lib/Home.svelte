@@ -39,7 +39,7 @@
 
     function enter(e) {
         if(e.key === "Enter") {
-            replace('/load')
+            replace('/load/1')
         }
     }
 </script>

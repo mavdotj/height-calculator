@@ -3,6 +3,7 @@
     import { writable } from "svelte/store";
     import { replace } from 'svelte-spa-router'
     let value = writable(0);
+    export let params;
     function getRandomInt(max) {
         return Math.floor(Math.random() * max);
     }
@@ -21,12 +22,18 @@
                 console.log($value)
             }
             ticks++;
-            await wait(100)
+            await wait(50)
         }
         value.set(100)
         replace(`/height`)
     })
 </script>
 
-<span class="block mb-10">Loading...</span>
+<span class="block mb-10">
+{#if params.type == 0}
+Loading...
+{:else}
+Calculating...
+{/if}
+</span>
 <progress class="progress progress-accent w-56 block shadow-lg" value={$value} max="100"></progress>
