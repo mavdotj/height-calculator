@@ -5,8 +5,6 @@
 	import { App, Page } from '$lib/state.svelte';
 
 	let app = App.instance;
-
-	$inspect(app.reloadKey)
 </script>
 
 <div class="h-screen w-screen flex flex-col">
@@ -17,7 +15,6 @@
 			<Home />
 		{:else if app.page === Page.Load}
 			{#key app.reloadKey}
-				{console.log('rendering...')}
 				<Loading />
 			{/key}
 		{/if}
