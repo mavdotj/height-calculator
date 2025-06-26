@@ -6,7 +6,16 @@ const config = {
 	// Consult https://svelte.dev/docs/kit/integrations
 	// for more information about preprocessors
 	preprocess: vitePreprocess({ script: true }),
-	kit: { adapter: adapter() }
+	kit: {
+		adapter: adapter({
+			strict: true,
+			precompress: true,
+			fallback: '404.html'
+		}),
+		paths: {
+			base: '/height-calculator'
+		}
+	}
 };
 
 export default config;

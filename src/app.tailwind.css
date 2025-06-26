@@ -3,9 +3,9 @@
 @plugin 'daisyui';
 
 .typewriter-container {
-    @apply inline
+	@apply inline;
 }
 
 .typewriter-container * {
-    @apply inline
+	@apply inline;
 }

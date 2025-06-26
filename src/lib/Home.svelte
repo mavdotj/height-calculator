@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Dirty nasty code, never open this file again.
 	import { onMount, untrack } from 'svelte';
-	import App, { Page, Typewriter } from './state.svelte';
+	import { App, Page, Typewriter } from './state.svelte';
 	enum Stage {
 		Start,
 		Install,
@@ -32,22 +32,12 @@
 
 	function runpackage() {
 		stage = Stage.Running;
-		inputelm?.focus()
+		inputelm?.focus();
 	}
 
 	let inputelm = $state<HTMLSpanElement>();
 	let invalid = $state(false);
 	let value = $state('');
-
-	$effect(() => {
-		if(inputelm) {
-			console.log(inputelm)
-			window.inputelm = inputelm
-		}
-	})
-
-	$inspect("height: ", app.height)
-	$inspect("invalid: ", invalid)
 </script>
 
 <!-- Dirty nasty code, never open this file again. -->
@@ -57,9 +47,9 @@
 	{@const typewriter = new Typewriter()}
 	{(() => {
 		untrack(() => {
-			typewriter.set(target).then(then)
-		})
-	})() ?? ""}
+			typewriter.set(target).then(then);
+		});
+	})() ?? ''}
 	{typewriter.current}
 {/snippet}
 
@@ -68,7 +58,7 @@
 
 	<span class="inline">
 		{#if stage >= Stage.Install}
-			<span>&gt;</span>{@render typewrite("npm i -g height-calc", installpackage)}
+			<span>&gt;</span>{@render typewrite('npm i -g height-calc', installpackage)}
 		{/if}
 	</span>
 	{#if stage >= Stage.Installing}
@@ -85,7 +75,7 @@
 	{/if}
 	<span class="inline">
 		{#if stage >= Stage.Run}
-			<span>&gt;</span>{@render typewrite("height-calc", runpackage)}
+			<span>&gt;</span>{@render typewrite('height-calc', runpackage)}
 		{/if}
 	</span>
 	{#if stage === Stage.Running}
@@ -93,11 +83,10 @@
 			Input Height: <span
 				bind:this={inputelm}
 				contenteditable
-
 				bind:textContent={
-					() => value || '      ', 
+					() => value || '      ',
 					(v) => {
-						if(value !== v) {
+						if (value !== v) {
 							invalid = false;
 							value = v.trim();
 						}
@@ -110,17 +99,17 @@
 	{/if}
 </div>
 
-<svelte:window on:keydown={
-    (e) => {
+<svelte:window
+	on:keydown={(e) => {
 		if (e.key === 'Enter') {
-			let height = parseFloat(value)
-			if(isNaN(height)) {
+			let height = parseFloat(value);
+			if (isNaN(height)) {
 				invalid = true;
-				return
+				return;
 			}
-			app.height = height
-			app.isLoadingHeight = true
-			app.page = Page.Load
+			app.height = height;
+			app.isLoadingHeight = true;
+			app.page = Page.Load;
 		}
-	}
-} />
+	}}
+/>
