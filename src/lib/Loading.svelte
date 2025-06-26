@@ -2,8 +2,9 @@
 	import { delay } from '@std/async';
 	import { onMount } from 'svelte';
 	import { App, Page } from './state.svelte';
+	import { Tween } from 'svelte/motion';
 
-	let value = $state(0);
+	const value = new Tween(0);
 	let app = App.instance;
 
 	function getRandomInt(max: number) {
@@ -12,14 +13,17 @@
 
 	onMount(async () => {
 		let ticks = 0;
-		while (value < 100) {
+		while (value.current < 100) {
 			if (ticks % 12 === 12 || ticks % 12 === 0) {
-				value = value + getRandomInt(15);
+				value.target = value.target + getRandomInt(15);
 			}
 			ticks++;
+			if(value.current < 80) {
+				await delay(50);
+			}
 			await delay(50);
 		}
-		value = 100;
+		value.target = 100;
 		app.page = app.isLoadingHeight ? Page.Height : Page.Home;
 	});
 </script>
@@ -31,4 +35,4 @@
 		Loading...
 	{/if}
 </span>
-<progress class="progress progress-accent w-56 block shadow-lg" {value} max="100"></progress>
+<progress class="progress progress-accent w-56 block shadow-lg" value={value.current} max="100"></progress>
