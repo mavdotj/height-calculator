@@ -38,6 +38,10 @@
 	let inputelm = $state<HTMLSpanElement>();
 	let invalid = $state(false);
 	let value = $state('');
+
+	function getRandomInt(max: number) {
+		return Math.floor(Math.random() * max);
+	}
 </script>
 
 <!-- Dirty nasty code, never open this file again. -->
@@ -65,12 +69,12 @@
 		{#await wait(2000)}
 			<span>...</span>
 		{:then}
-			installed 918273871239847 packages, audited 141 packages in 379y<br />
+			installed {getRandomInt(Number.MAX_SAFE_INTEGER)} packages, audited {getRandomInt(300)} packages in {getRandomInt(500)}y<br />
 			<br />
-			45 packages are looking for funding<br />
+			{getRandomInt(62)} packages are looking for funding<br />
 			run `npm fund` for details<br />
 			<br />
-			found 400 vulnerabilities<br />
+			found {getRandomInt(500)} vulnerabilities<br />
 		{/await}
 	{/if}
 	<span class="inline">

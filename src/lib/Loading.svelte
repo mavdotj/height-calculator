@@ -5,6 +5,7 @@
 	import { Tween } from 'svelte/motion';
 
 	const value = new Tween(0);
+	let fail = $state(false);
 	let app = App.instance;
 
 	function getRandomInt(max: number) {
@@ -15,11 +16,15 @@
 		let ticks = 0;
 		while (value.current < 100) {
 			if (ticks % 12 === 12 || ticks % 12 === 0) {
+				if(app.canFail && getRandomInt(3) >= 2) {
+					fail = true
+					return
+				}
 				value.target = value.target + getRandomInt(15);
 			}
 			ticks++;
-			if(value.current < 80) {
-				await delay(50);
+			if(value.target >= 60) {
+				await delay(200);
 			}
 			await delay(50);
 		}
@@ -35,4 +40,8 @@
 		Loading...
 	{/if}
 </span>
-<progress class="progress progress-accent w-56 block shadow-lg" value={value.current} max="100"></progress>
+<progress class="progress progress-accent w-56 block shadow-lg" class:progress-error!={fail} value={value.current} max="100"></progress>
+{#if fail}
+	Something went wrong.
+	<button onclick={() => app.reload()} class="btn btn-primary">Retry?</button>
+{/if}

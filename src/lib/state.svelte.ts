@@ -8,13 +8,36 @@ export enum Page {
 
 export class App {
 	static readonly instance = new App();
+	private _canFail = $state(true);
+	canFail = $derived(this._canFail)
+	private _reloadKey = $state(false)
 
-	page = $state<Page>(Page.Load);
+	get reloadKey() {
+		return this._reloadKey
+	}
+
+	reload() {
+		this._canFail = false;
+		this._reloadKey = !this._reloadKey;
+	}
+
+	private _page = $state<Page>(Page.Load);
+	public get page() {
+		return this._page;
+	}
+	public set page(value) {
+		if (this.page == Page.Load) {
+			this._canFail = true;
+		}
+		this._page = value;
+	}
 	height = $state<number | undefined>();
 
 	isLoadingHeight = $state<boolean>(false);
 
-	private constructor() {}
+	private constructor() {
+
+	}
 }
 
 export class Typewriter {
