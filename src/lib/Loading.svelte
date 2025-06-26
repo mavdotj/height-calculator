@@ -1,39 +1,34 @@
-<script>
+<script lang=ts>
+	import { delay } from "@std/async";
     import { onMount } from "svelte";
-    import { writable } from "svelte/store";
-    import { replace } from 'svelte-spa-router'
-    let value = writable(0);
-    export let params;
-    function getRandomInt(max) {
-        return Math.floor(Math.random() * max);
-    }
+	import App, { Page } from "./state.svelte";
+    
+    let value = $state(0);
+    let app = App.instance;
 
-    const wait = (t) => {
-        return new Promise((res) => {
-            setTimeout(res, t)
-        })
+    function getRandomInt(max: number) {
+        return Math.floor(Math.random() * max);
     }
 
     onMount(async () => {
         let ticks = 0
-        while($value < 100) {
+        while(value < 100) {
             if(ticks % 12 === 12 || ticks % 12 === 0) {
-                value.set($value + getRandomInt(15))
-                console.log($value)
+                value = value + getRandomInt(15)
             }
             ticks++;
-            await wait(50)
+            await delay(50)
         }
-        value.set(100)
-        replace(`/height`)
+        value = 100
+        app.page = app.isLoadingHeight?Page.Height:Page.Home
     })
 </script>
 
 <span class="block mb-10">
-{#if params.type == 0}
-Loading...
-{:else}
+{#if app.isLoadingHeight}
 Calculating...
+{:else}
+Loading...
 {/if}
 </span>
-<progress class="progress progress-accent w-56 block shadow-lg" value={$value} max="100"></progress>
+<progress class="progress progress-accent w-56 block shadow-lg" value={value} max="100"></progress>

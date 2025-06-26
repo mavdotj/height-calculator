@@ -1,89 +1,126 @@
-<script lang=ts>
-    // Dirty nasty code, never open this file again.
-    import { onMount } from 'svelte';
-    import Typewriter from 'svelte-typewriter'
-    import height from './store';
-    import { replace } from 'svelte-spa-router';
-    enum Stage {
-        Start,
-        Install,
-        Installing,
-        Run,
-        Running
-    }
+<script lang="ts">
+	// Dirty nasty code, never open this file again.
+	import { onMount, untrack } from 'svelte';
+	import App, { Page, Typewriter } from './state.svelte';
+	enum Stage {
+		Start,
+		Install,
+		Installing,
+		Run,
+		Running
+	}
 
-    const wait = (t) => {
-        return new Promise((res) => {
-            setTimeout(res, t)
-            setTimeout(() => {
-                stage = Stage.Run
-            }, t + 200)
-        })
-    }
+	let app = App.instance;
 
-    let stage: Stage = 0;
+	const wait = (t: number) =>
+		new Promise((res) => {
+			setTimeout(res, t);
+			setTimeout(() => {
+				stage = Stage.Run;
+			}, t + 200);
+		});
 
-    onMount(() => {
-        stage = Stage.Install
-    })
+	let stage: Stage = $state(Stage.Start);
 
-    function installpackage() {
-        stage = Stage.Installing
-    }
+	onMount(() => {
+		stage = Stage.Install;
+	});
 
-    function runpackage() {
-        stage = Stage.Running
-    }
+	function installpackage() {
+		stage = Stage.Installing;
+	}
 
-    let inputelm;
+	function runpackage() {
+		stage = Stage.Running;
+		inputelm?.focus()
+	}
 
-    function enter(e) {
-        if(e.key === "Enter") {
-            replace('/load/1')
-        }
-    }
+	let inputelm = $state<HTMLSpanElement>();
+	let invalid = $state(false);
+	let value = $state('');
+
+	$effect(() => {
+		if(inputelm) {
+			console.log(inputelm)
+			window.inputelm = inputelm
+		}
+	})
+
+	$inspect("height: ", app.height)
+	$inspect("invalid: ", invalid)
 </script>
 
 <!-- Dirty nasty code, never open this file again. -->
+<!-- I actually did open this file again... -->
+
+{#snippet typewrite(target: string, then: () => void)}
+	{@const typewriter = new Typewriter()}
+	{(() => {
+		untrack(() => {
+			typewriter.set(target).then(then)
+		})
+	})() ?? ""}
+	{typewriter.current}
+{/snippet}
 
 <div class="w-full h-full bg-black text-green-600 flex flex-col">
-<span>~ </span>
+	<span>~ </span>
 
-<span class="inline">
-    {#if stage >= Stage.Install}
-    <span>&gt;</span><Typewriter on:done={installpackage}>
-        npm i -g height-calc
-    </Typewriter>
-    {/if}
-</span>
-{#if stage >= Stage.Installing}
-{#await wait(2000)}
-    <span>...</span>
-{:then} 
-installed 918273871239847 packages, audited 141 packages in 379y<br>
-<br>
-45 packages are looking for funding<br>
-run `npm fund` for details<br>
-<br>
-found 400 vulnerabilities<br>
-{/await}
-{/if}
-<span class="inline">
-    {#if stage >= Stage.Run}
-    <span>&gt;</span><Typewriter on:done={runpackage}>
-        height-calc
-    </Typewriter>
-    {/if}
-</span>
-{#if stage === Stage.Running}
-<span class="inline">
-    Input Height: <input bind:this={inputelm} bind:value={$height} type="number" class="input input-ghost input-xs w-full max-w-xs inline" />
-    {#if inputelm}
-    <span class="hidden">{inputelm.focus()}</span>
-    {/if}
-</span>
-{/if}
+	<span class="inline">
+		{#if stage >= Stage.Install}
+			<span>&gt;</span>{@render typewrite("npm i -g height-calc", installpackage)}
+		{/if}
+	</span>
+	{#if stage >= Stage.Installing}
+		{#await wait(2000)}
+			<span>...</span>
+		{:then}
+			installed 918273871239847 packages, audited 141 packages in 379y<br />
+			<br />
+			45 packages are looking for funding<br />
+			run `npm fund` for details<br />
+			<br />
+			found 400 vulnerabilities<br />
+		{/await}
+	{/if}
+	<span class="inline">
+		{#if stage >= Stage.Run}
+			<span>&gt;</span>{@render typewrite("height-calc", runpackage)}
+		{/if}
+	</span>
+	{#if stage === Stage.Running}
+		<span class="inline">
+			Input Height: <span
+				bind:this={inputelm}
+				contenteditable
+
+				bind:textContent={
+					() => value || '      ', 
+					(v) => {
+						if(value !== v) {
+							invalid = false;
+							value = v.trim();
+						}
+					}
+				}
+				class="min-w-8! border-1 border-white/10 rounded-md whitespace-pre"
+				class:text-red-500={invalid}
+			></span>
+		</span>
+	{/if}
 </div>
 
-
-<svelte:window on:keydown={enter}></svelte:window>
+<svelte:window on:keydown={
+    (e) => {
+		if (e.key === 'Enter') {
+			let height = parseFloat(value)
+			if(isNaN(height)) {
+				invalid = true;
+				return
+			}
+			app.height = height
+			app.isLoadingHeight = true
+			app.page = Page.Load
+		}
+	}
+} />
